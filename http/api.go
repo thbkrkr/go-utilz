@@ -1,10 +1,12 @@
 package http
 
 import (
+	"errors"
 	"net/http"
 	"os"
 
 	"github.com/Sirupsen/logrus"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 )
 
@@ -66,6 +68,36 @@ func cORSMiddleware() gin.HandlerFunc {
 			c.AbortWithStatus(200)
 		} else {
 			c.Next()
+		}
+	}
+}
+
+func JWTAuthMiddleware(secret string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		rawToken := c.Request.Header.Get("X-Auth")
+
+		if rawToken == "" {
+			c.AbortWithError(401, errors.New("Authentication failed"))
+			return
+		}
+
+		token, err := jwt.Parse(rawToken, func(t *jwt.Token) (interface{}, error) {
+			b := ([]byte(secret))
+			return b, nil
+		})
+
+		if err != nil {
+			c.AbortWithError(401, err)
+		} else if token == nil {
+			c.AbortWithError(401, err)
+		} else {
+
+			claims, ok := token.Claims.(jwt.MapClaims)
+			if !ok || !token.Valid {
+				c.AbortWithError(401, err)
+			}
+
+			c.Set("AuthID", claims["ID"])
 		}
 	}
 }
