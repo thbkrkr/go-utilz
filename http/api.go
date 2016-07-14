@@ -44,7 +44,7 @@ func API(name string, buildDate string, gitCommit string, f func(r *gin.Engine))
 		"gitCommit": gitCommit,
 		"name":      name,
 		"port":      4242,
-	}).Info("Start")
+	}).Info("API started")
 
 	err := r.Run(":4242")
 	if err != nil {
