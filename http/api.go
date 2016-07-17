@@ -23,6 +23,14 @@ func API(name string, buildDate string, gitCommit string, f func(r *gin.Engine))
 		r.GET("/", func(c *gin.Context) {
 			c.Redirect(http.StatusMovedPermanently, "/s")
 		})
+	} else {
+		r.GET("/", func(c *gin.Context) {
+			c.JSON(200, gin.H{
+				"name":   name,
+				"ok":     "true",
+				"status": 200,
+			})
+		})
 	}
 
 	r.GET("/status", func(c *gin.Context) {
