@@ -5,22 +5,16 @@ import (
 	"github.com/garyburd/redigo/redis"
 )
 
-var defaultRedisURL = ":6379"
-
-// Conn creates a Redis connection using the env var REDIS_URL
-func Conn(redisURL string) redis.Conn {
-	if redisURL == "" {
-		redisURL = defaultRedisURL
-	}
-
+// NewConn creates a Redis connection
+func NewConn(redisURL string) redis.Conn {
 	conn, err := redis.Dial("tcp", redisURL)
 	if err != nil {
-		logrus.Fatal(err)
+		logrus.WithError(err).Fatal("Fail to create redis connection")
 	}
 
 	_, err = conn.Do("PING")
 	if err != nil {
-		logrus.Fatal(err)
+		logrus.WithError(err).Fatal("Fail to ping redis")
 	}
 
 	logrus.WithField("url", redisURL).Info("Redis connection ready")
